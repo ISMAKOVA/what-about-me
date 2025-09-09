@@ -57,7 +57,6 @@ export default [
         {
           groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
           pathGroups: [
-            { pattern: "react", group: "external", position: "before" },
             { pattern: "@/**", group: "internal" },
           ],
           pathGroupsExcludedImportTypes: ["react"],

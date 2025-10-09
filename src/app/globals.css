@@ -24,6 +24,7 @@ body {
   --font-satoshi: var(--font-satoshi);
   --font-cabinet: var(--font-cabinet);
   --text-huge: 20rem;
+  --text-tiny: 0.7rem;
 }
 
 @utility flex-right {

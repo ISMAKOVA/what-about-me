@@ -3,9 +3,9 @@ import nextPlugin from '@next/eslint-plugin-next';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import importPlugin from 'eslint-plugin-import';
+import prettierPlugin from 'eslint-plugin-prettier';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
-import prettierPlugin from 'eslint-plugin-prettier';
 
 export default [
   {

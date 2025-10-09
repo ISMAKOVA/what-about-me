@@ -1,7 +1,8 @@
 'use client';
 import { MoveLeft, MoveRight } from 'lucide-react';
+
+import { TransitionLink } from '../ui/transition-link';
 import './styles.css';
-import Link from 'next/link';
 
 export const Navbar = () => {
   return (
@@ -9,19 +10,21 @@ export const Navbar = () => {
       <div className="font-cabinet absolute grid h-screen grid-rows-3 place-content-between gap-1">
         <ul className="mt-6 ml-6 font-bold">
           <li>
-            <Link href="/work" className="flex gap-2">
-              <span>WORK</span>
+            <TransitionLink href="/work">
+              <span>
+                WORK <span className="text-tiny absolute top-2.5">(24)</span>
+              </span>
               <MoveRight />
-            </Link>
+            </TransitionLink>
           </li>
         </ul>
 
         <ul className="row-start-3 mb-1 ml-6 flex self-end font-bold">
           <li className="origin-top-left -rotate-90">
-            <Link href="/contact" className="flex justify-start gap-2">
+            <TransitionLink href="/contact" className="flex justify-start gap-2">
               <MoveLeft />
               <span className="">CONTACT</span>
-            </Link>
+            </TransitionLink>
           </li>
         </ul>
       </div>

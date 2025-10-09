@@ -1,9 +1,10 @@
+import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger, SplitText } from 'gsap/all';
 import type { Metadata } from 'next';
-import './globals.css';
 import localFont from 'next/font/local';
 import { ReactNode } from 'react';
+import './globals.css';
 
 const cabinet = localFont({
   src: [
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
   description: '',
 };
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
+gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 
 export default function RootLayout({
   children,

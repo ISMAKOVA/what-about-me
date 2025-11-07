@@ -1,7 +1,18 @@
-export const BeatCard = () => {
+import { Beat } from '@/lib/types';
+
+import { BeatDisc } from './beat-disc';
+
+export const BeatCard = ({ beat }: { beat: Beat }) => {
   return (
-    <div className="w-50 h-50 relative rounded-full bg-amber-400 flex justify-center items-center">
-      <h3>NAME</h3>
+    <div className="">
+      <h3 className="font-satoshi font-bold text-xs tracking-tight mb-4 text-left">{beat.name}</h3>
+      <BeatDisc image={beat.image} />
+      <p className="font-satoshi font-bold text-xs tracking-tight mt-8 text-right">
+        <span className=" font-medium ">type </span> {beat.type}
+      </p>
+      <h3 className="font-satoshi font-medium text-xs tracking-tight text-right text-black">
+        {beat.bpm} bpm
+      </h3>
     </div>
   );
 };

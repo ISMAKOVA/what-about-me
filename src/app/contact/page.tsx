@@ -1,10 +1,16 @@
-import { TransitionLink } from '@/components/ui/transition-link';
+import { Container } from '@/components/layout/container';
+import { Navbar } from '@/components/layout/navbar';
+import { PAGES_CONTACT } from '@/lib/constants';
 
 export default function Home() {
   return (
-    <main className="h-screen flex justify-center items-center gap-2">
-      <h1>Contact Page</h1>
-      <TransitionLink href="/"> Home </TransitionLink>
-    </main>
+    <>
+      <Navbar items={PAGES_CONTACT} />
+      <Container>
+        <div className="h-full flex justify-center items-center gap-2">
+          <h1>Contact Page</h1>
+        </div>
+      </Container>
+    </>
   );
 }

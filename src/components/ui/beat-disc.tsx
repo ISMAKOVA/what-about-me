@@ -33,7 +33,7 @@ export const BeatDisc = ({ image }: { image: string }) => {
       ref={discRef}
       onMouseEnter={() => spinTween.current?.play()}
       onMouseLeave={() => spinTween.current?.pause()}
-      className="w-80 h-80 relative rounded-full overflow-hidden flex justify-center items-center bg-cover bg-center"
+      className="w-64 h-64 md:w-80 md:h-80 relative rounded-full overflow-hidden flex justify-center items-center bg-cover bg-center"
       style={{ backgroundImage: `url(${image})` }}
     >
       {/* disk on top (has transparent parts) */}

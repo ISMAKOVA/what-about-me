@@ -7,7 +7,5 @@ type Props = {
 };
 
 export const Container = ({ className, children }: PropsWithChildren<Props>) => {
-  return (
-    <main className={cn('w-screen h-screen overflow-hidden mx-4', className)}>{children}</main>
-  );
+  return <main className={cn('w-screen h-screen overflow-hidden ', className)}>{children}</main>;
 };

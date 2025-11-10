@@ -22,7 +22,7 @@ export const Navbar = ({ className, children, items }: PropsWithChildren<Props>)
   const filteredPages = source.filter((page) => page.link !== pathname);
 
   return (
-    <nav className={cn('fixed  h-12 w-screen font-cabinet p-4 z-10', className)}>
+    <nav className={cn('fixed h-12 w-screen font-cabinet p-4 z-10', className)}>
       <ul className="grid grid-cols-4 font-bold items-center">
         {filteredPages.map((page, index) => (
           <li key={index} className={`col-start-${index === 0 ? 0 : index + 1}`}>

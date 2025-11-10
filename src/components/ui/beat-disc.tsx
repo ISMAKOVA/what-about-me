@@ -3,8 +3,9 @@ import { gsap } from 'gsap';
 import { useEffect, useRef } from 'react';
 
 import disk from '@/assets/disc_transparent.png';
+import { cn } from '@/utils/cn';
 
-export const BeatDisc = ({ image }: { image: string }) => {
+export const BeatDisc = ({ image, className }: { image: string; className?: string }) => {
   const discRef = useRef<HTMLDivElement>(null);
   const spinTween = useRef<gsap.core.Tween | null>(null);
 
@@ -33,7 +34,10 @@ export const BeatDisc = ({ image }: { image: string }) => {
       ref={discRef}
       onMouseEnter={() => spinTween.current?.play()}
       onMouseLeave={() => spinTween.current?.pause()}
-      className="w-64 h-64 md:w-80 md:h-80 relative rounded-full overflow-hidden flex justify-center items-center bg-cover bg-center"
+      className={cn(
+        'w-64 h-64 md:w-80 md:h-80 relative rounded-full overflow-hidden flex justify-center items-center bg-cover bg-center',
+        className,
+      )}
       style={{ backgroundImage: `url(${image})` }}
     >
       {/* disk on top (has transparent parts) */}

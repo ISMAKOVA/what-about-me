@@ -1,6 +1,6 @@
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { ScrollTrigger, SplitText } from 'gsap/all';
+import { Draggable, InertiaPlugin, ScrollTrigger, SplitText } from 'gsap/all';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { ReactNode } from 'react';
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   description: '',
 };
 
-gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
+gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP, Draggable, InertiaPlugin);
 
 export default function RootLayout({
   children,

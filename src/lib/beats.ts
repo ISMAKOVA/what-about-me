@@ -1,9 +1,13 @@
 import beat1 from '@/assets/beat-covers/beat_1.png';
+import beat10 from '@/assets/beat-covers/beat_10.jpg';
 import beat2 from '@/assets/beat-covers/beat_2.jpg';
 import beat3 from '@/assets/beat-covers/beat_3.jpg';
 import beat4 from '@/assets/beat-covers/beat_4.jpg';
 import beat5 from '@/assets/beat-covers/beat_5.jpg';
 import beat6 from '@/assets/beat-covers/beat_6.jpg';
+import beat7 from '@/assets/beat-covers/beat_7.jpg';
+import beat8 from '@/assets/beat-covers/beat_8.jpg';
+import beat9 from '@/assets/beat-covers/beat_9.jpg';
 
 import { Beat } from './types';
 export const beats: Beat[] = [
@@ -47,6 +51,34 @@ export const beats: Beat[] = [
     type: 'JPEGMAFIA x DEATH GRIPS x EXPERIMENTAL',
     youtubeUrl: 'https://www.youtube.com/watch?v=r2-bOuqfsb4',
     image: beat6.src,
+    bpm: 107,
+  },
+  {
+    name: 'NAME',
+    type: 'JPEGMAFIA x DEATH GRIPS x EXPERIMENTAL',
+    youtubeUrl: 'https://www.youtube.com/watch?v=r2-bOuqfsb4',
+    image: beat7.src,
+    bpm: 107,
+  },
+  {
+    name: 'NAME',
+    type: 'JPEGMAFIA x DEATH GRIPS x EXPERIMENTAL',
+    youtubeUrl: 'https://www.youtube.com/watch?v=r2-bOuqfsb4',
+    image: beat8.src,
+    bpm: 107,
+  },
+  {
+    name: 'NAME',
+    type: 'JPEGMAFIA x DEATH GRIPS x EXPERIMENTAL',
+    youtubeUrl: 'https://www.youtube.com/watch?v=r2-bOuqfsb4',
+    image: beat9.src,
+    bpm: 107,
+  },
+  {
+    name: 'NAME',
+    type: 'JPEGMAFIA x DEATH GRIPS x EXPERIMENTAL',
+    youtubeUrl: 'https://www.youtube.com/watch?v=r2-bOuqfsb4',
+    image: beat10.src,
     bpm: 107,
   },
 ];

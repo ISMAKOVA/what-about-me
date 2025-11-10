@@ -52,16 +52,11 @@ export default [
       'prettier/prettier': 'error',
 
       // imports
-      'import/order': [
-        'error',
-        {
-          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
-          pathGroups: [{ pattern: '@/**', group: 'internal' }],
-          pathGroupsExcludedImportTypes: ['react'],
-          'newlines-between': 'always',
-          alphabetize: { order: 'asc', caseInsensitive: true },
-        },
-      ],
+      // Disabled because Prettier (prettier-plugin-organize-imports) will reorder imports.
+      // Keeping both enabled causes conflicts where Prettier and ESLint disagree about
+      // group spacing/ordering. Rely on Prettier for import organization and keep
+      // import/no-unresolved / import/no-cycle for correctness.
+      'import/order': 'off',
       'import/no-unresolved': 'error',
       'import/no-cycle': 'warn',
 

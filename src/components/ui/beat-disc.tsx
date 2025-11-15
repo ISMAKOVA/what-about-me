@@ -1,5 +1,5 @@
+import { gsap } from '@/lib/gsap';
 import { useGSAP } from '@gsap/react';
-import { gsap } from 'gsap';
 import { useEffect, useRef } from 'react';
 
 import disk from '@/assets/disc_transparent.png';

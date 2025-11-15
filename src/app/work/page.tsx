@@ -8,7 +8,7 @@ import { Navbar } from '@/components/layout/navbar';
 import { PAGES_WORK } from '@/lib/constants';
 
 export default function Home() {
-  const [infiniteGrid, setInfiniteGrid] = useState(true);
+  const [infiniteGrid, setInfiniteGrid] = useState(false);
 
   return (
     <>

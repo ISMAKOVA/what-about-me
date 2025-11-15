@@ -1,10 +1,10 @@
 'use client';
 import beats from '@/lib/beats';
+import { gsap } from '@/lib/gsap';
 import { Beat } from '@/lib/types';
-import { gsap } from 'gsap';
 import { Draggable } from 'gsap/Draggable';
 import { useEffect, useRef } from 'react';
-import { BeatDisc } from '../ui/beat-disc';
+import { BeatDisc } from '../ui';
 
 type Cell = { x: number; y: number; image: string };
 

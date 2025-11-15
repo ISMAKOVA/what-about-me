@@ -1,8 +1,6 @@
-'use client';
-
 import { MoveLeft, MoveRight } from 'lucide-react';
 
-import { TransitionLink } from './ui/transition-link';
+import { TransitionLink } from '../ui/transition-link';
 
 export const Hero = () => {
   return (

@@ -1,6 +1,4 @@
-import { useGSAP } from '@gsap/react';
-import gsap from 'gsap';
-import { Draggable, InertiaPlugin, ScrollTrigger, SplitText } from 'gsap/all';
+import GsapProvider from '@/providers/GsapProvider';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { ReactNode } from 'react';
@@ -35,8 +33,6 @@ export const metadata: Metadata = {
   description: '',
 };
 
-gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP, Draggable, InertiaPlugin);
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -44,7 +40,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${cabinet.variable} ${satoshi.variable} antialiased`}>{children}</body>
+      <body className={`${cabinet.variable} ${satoshi.variable} antialiased`}>
+        <GsapProvider>{children}</GsapProvider>
+      </body>
     </html>
   );
 }

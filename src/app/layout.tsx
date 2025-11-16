@@ -1,3 +1,4 @@
+import { CursorProvider, StickyCursor } from '@/components/ui/cursor';
 import GsapProvider from '@/providers/GsapProvider';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
@@ -41,7 +42,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${cabinet.variable} ${satoshi.variable} antialiased`}>
-        <GsapProvider>{children}</GsapProvider>
+        <GsapProvider>
+          <CursorProvider>
+            {children}
+            <StickyCursor />
+          </CursorProvider>
+        </GsapProvider>
       </body>
     </html>
   );

@@ -1,5 +1,6 @@
 import { MoveLeft, MoveRight } from 'lucide-react';
 
+import beats from '@/lib/beats';
 import { TransitionLink } from '../ui/transition-link';
 
 export const Hero = () => {
@@ -11,7 +12,7 @@ export const Hero = () => {
             <li>
               <TransitionLink href="/work">
                 <span>
-                  WORK <span className="text-tiny absolute top-2.5">(24)</span>
+                  WORK <span className="text-tiny absolute top-2.5">({beats.length})</span>
                 </span>
                 <MoveRight />
               </TransitionLink>

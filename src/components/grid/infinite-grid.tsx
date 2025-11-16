@@ -4,6 +4,7 @@ import { gsap } from '@/lib/gsap';
 import { Beat } from '@/lib/types';
 import { Draggable } from 'gsap/Draggable';
 import { useEffect, useRef } from 'react';
+import { Container } from '../layout';
 import { BeatDisc } from '../ui';
 
 type Cell = { x: number; y: number; image: string };
@@ -41,7 +42,7 @@ const makeCells = ({
 };
 
 export function InfiniteGrid() {
-  const { cells, w, h } = makeCells({ beats, size: 320, gap: 150 });
+  const { cells, w, h } = makeCells({ beats, size: 320, gap: 10 });
   const worldRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -74,38 +75,40 @@ export function InfiniteGrid() {
   }, [w, h]);
 
   return (
-    <div className="w-full h-full flex justify-center items-center relative z-0">
-      <div
-        ref={worldRef}
-        className="relative"
-        style={{ left: 0, top: 0, touchAction: 'none', cursor: 'grab' }}
-      >
-        {[-1, 0, 1].map((oy) => (
-          <div key={oy} style={{ position: 'absolute', left: 0, top: oy * h }}>
-            {[-1, 0, 1].map((ox) => (
-              <div
-                key={ox}
-                style={{
-                  position: 'absolute',
-                  left: ox * w,
-                  top: 0,
-                  width: w,
-                  height: h,
-                  boxSizing: 'border-box',
-                  // border: '1px dashed rgba(0,0,0,0.12)',
-                  // background: 'rgba(255,255,255,0.6)',
-                }}
-              >
-                {cells.map((c, i) => (
-                  <div key={i} className="absolute" style={{ left: c.x, top: c.y }}>
-                    <BeatDisc image={c.image} />
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        ))}
+    <Container>
+      <div className="w-full h-full flex justify-center items-center relative z-0">
+        <div
+          ref={worldRef}
+          className="relative"
+          style={{ left: 0, top: 0, touchAction: 'none', cursor: 'grab' }}
+        >
+          {[-1, 0, 1].map((oy) => (
+            <div key={oy} style={{ position: 'absolute', left: 0, top: oy * h }}>
+              {[-1, 0, 1].map((ox) => (
+                <div
+                  key={ox}
+                  style={{
+                    position: 'absolute',
+                    left: ox * w,
+                    top: 0,
+                    width: w,
+                    height: h,
+                    boxSizing: 'border-box',
+                    // border: '1px dashed rgba(0,0,0,0.12)',
+                    // background: 'rgba(255,255,255,0.6)',
+                  }}
+                >
+                  {cells.map((c, i) => (
+                    <div key={i} className="absolute" style={{ left: c.x, top: c.y }}>
+                      <BeatDisc image={c.image} className="w-64 h-64 md:w-40 md:h-40 m-4" />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </Container>
   );
 }

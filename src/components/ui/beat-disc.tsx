@@ -1,16 +1,30 @@
 import { gsap } from '@/lib/gsap';
 import { useGSAP } from '@gsap/react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import disk from '@/assets/disc_transparent.png';
+import { usePlayerStore } from '@/lib/stores/usePlayerStore';
 import { cn } from '@/utils/cn';
 import { useCursorStick } from './cursor';
 
-export const BeatDisc = ({ image, className }: { image: string; className?: string }) => {
+export const BeatDisc = ({
+  id,
+  image,
+  className,
+}: {
+  id: string;
+  image: string;
+  className?: string;
+}) => {
   const discRef = useRef<HTMLDivElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const spinTween = useRef<gsap.core.Tween | null>(null);
-  const [cursorText, setCursorText] = useState('play');
+  const isPlaying = usePlayerStore((s) => s.isPlaying);
+  const currentBeatId = usePlayerStore((s) => s.currentBeatId);
+  const toggleBeat = usePlayerStore((s) => s.toggleBeat);
+
+  const playingThis = isPlaying && currentBeatId === id;
+  const cursorText = playingThis ? 'pause' : 'play';
 
   useCursorStick(cursorRef, { magnet: 0.1, text: cursorText });
 
@@ -33,22 +47,17 @@ export const BeatDisc = ({ image, className }: { image: string; className?: stri
     };
   }, []);
 
-  const toggleSpin = () => {
+  useEffect(() => {
     const t = spinTween.current;
     if (!t) return;
-    if (t.paused()) {
-      t.play();
-      setCursorText('pause'); // TODO: Use Zustand to manage cursor state globally
-    } else {
-      t.pause();
-      setCursorText('play');
-    }
-  };
+    if (playingThis) t.play();
+    else t.pause();
+  }, [playingThis]);
 
   const onKey = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      toggleSpin();
+      toggleBeat(id);
     }
   };
 
@@ -57,10 +66,10 @@ export const BeatDisc = ({ image, className }: { image: string; className?: stri
       ref={discRef}
       role="button"
       tabIndex={0}
-      onClick={toggleSpin}
+      onClick={() => toggleBeat(id)}
       onKeyDown={onKey}
       className={cn(
-        'w-64 h-64 md:w-80 md:h-80 relative rounded-full  flex justify-center items-center bg-cover bg-center',
+        'w-64 h-64 md:w-80 md:h-80 relative rounded-full flex justify-center items-center bg-cover bg-center',
         className,
       )}
       style={{ backgroundImage: `url(${image})` }}

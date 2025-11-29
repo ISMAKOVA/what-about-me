@@ -7,7 +7,7 @@ import { useEffect, useRef } from 'react';
 import { Container } from '../layout';
 import { BeatDisc } from '../ui';
 
-type Cell = { x: number; y: number; image: string };
+type Cell = { x: number; y: number; image: string; id: string };
 
 const makeCells = ({
   beats,
@@ -27,10 +27,15 @@ const makeCells = ({
   const row2: Cell[] = [];
 
   for (let i = 0; i < half; i++) {
-    row1.push({ x: i * (size + gap), y: 0, image: beats[i].image });
+    row1.push({ x: i * (size + gap), y: 0, image: beats[i]?.image || '', id: `beat-${i}` });
   }
   for (let j = 0; j < beatsLength - half; j++) {
-    row2.push({ x: j * (size + gap) + rowOffset, y: size + gap, image: beats[half + j].image });
+    row2.push({
+      x: j * (size + gap) + rowOffset,
+      y: size + gap,
+      image: beats[half + j]?.image || '',
+      id: `beat-${half + j}`,
+    });
   }
 
   const cells: Cell[] = [...row1, ...row2];
@@ -100,7 +105,11 @@ export function InfiniteGrid() {
                 >
                   {cells.map((c, i) => (
                     <div key={i} className="absolute" style={{ left: c.x, top: c.y }}>
-                      <BeatDisc image={c.image} className="w-64 h-64 md:w-40 md:h-40 m-4" />
+                      <BeatDisc
+                        id={c.id}
+                        image={c.image}
+                        className="w-64 h-64 md:w-40 md:h-40 m-4"
+                      />
                     </div>
                   ))}
                 </div>

@@ -36,7 +36,7 @@ export const Magnetic = ({ children }: { children: ReactNode }) => {
       ref={ref}
       onMouseMove={handleMove}
       onMouseLeave={reset}
-      style={{ x, y }} // smoother than animate={{ x, y }}
+      style={{ x, y }}
     >
       {children}
     </motion.div>

@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import { gsap } from '@/lib/gsap';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 

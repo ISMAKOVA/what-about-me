@@ -1,25 +1,25 @@
 import { Beat } from '@/lib/types';
 
 import { BeatDisc } from './beat-disc';
+
 import { Magnetic } from './magnetic';
 
 export const BeatCard = ({ number, beat }: { number: number; beat: Beat }) => {
   return (
     <div className="w-full h-full flex flex-col justify-between items-center">
-      <div className="w-full self-start text-left text-xs pointer-events-none">
+      <div className="h-full w-full self-start text-left text-xs pointer-events-none">
         <h3 className="font-satoshi font-bold tracking-tight capitalize">{beat.title}</h3>
-        <p className="w-2/3 mt-1 font-satoshi font-medium  lowercase">
+        <p className="w-2/3 mt-1 font-satoshi font-medium lowercase">
           {beat.type} <span className="italic">type</span>
         </p>
       </div>
       <Magnetic>
         <BeatDisc
-          id={`beat-${number}`}
+          id={beat?.id}
           image={beat?.image || ''}
           className="w-64 h-64 md:w-40 md:h-40 m-4"
         />
       </Magnetic>
-
       <p className="font-satoshi font-bold self-end text-xs pointer-events-none">
         {number < 10 ? '0' : ''}
         {number}

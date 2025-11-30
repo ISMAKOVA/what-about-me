@@ -22,6 +22,15 @@ export default [
         ecmaFeatures: { jsx: true },
         project: './tsconfig.json',
       },
+
+       globals: {
+        window: 'readonly',
+        document: 'readonly',
+        navigator: 'readonly',
+        requestAnimationFrame: 'readonly',
+        AudioContext: 'readonly',
+        console: 'readonly',
+      },
     },
     plugins: {
       '@next/next': nextPlugin,

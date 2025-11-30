@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 'use client';
 import { MotionValue, useMotionValue } from 'framer-motion';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
@@ -49,7 +48,16 @@ export function CursorProvider({ children }: { children: ReactNode }) {
   };
 
   const updateStickyConfig = useCallback((cfg: CursorState['stickyConfig']) => {
-    setStickyConfig(cfg);
+    setStickyConfig((prev) => {
+      if (
+        prev?.text === cfg?.text &&
+        prev?.magnet === cfg?.magnet &&
+        prev?.rotate === cfg?.rotate
+      ) {
+        return prev;
+      }
+      return cfg;
+    });
   }, []);
 
   return (

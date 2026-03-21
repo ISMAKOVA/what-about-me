@@ -4,6 +4,8 @@ import { gsap } from '@/lib/gsap';
 import { carouselStore } from '@/lib/stores/useCarouselStore';
 
 import {
+  CENTER_TWEEN_DURATION,
+  CENTER_TWEEN_EASE,
   HOVER_SCALE,
   SCALE_IN_DURATION,
   SCALE_IN_EASE,
@@ -54,6 +56,7 @@ export function createInteractionController(
   let selectedIndex: number | null = null;
 
   const scaleTweens: Array<gsap.core.Tween | null> = items.map(() => null);
+  let centeringTween: gsap.core.Tween | null = null;
   let isScrollingTracked = false;
 
   const raycaster = new THREE.Raycaster();
@@ -129,6 +132,8 @@ export function createInteractionController(
     // Clicking the already-selected item deselects it
     if (clickedIndex !== null && clickedIndex === selectedIndex) {
       tweenScale(selectedIndex, items[selectedIndex].baseScale, false);
+      centeringTween?.kill();
+      centeringTween = null;
       selectedIndex = null;
       hideInfoPanel();
       setSelectedItem(null);
@@ -145,8 +150,19 @@ export function createInteractionController(
       tweenScale(selectedIndex, items[selectedIndex].baseScale * SELECT_SCALE, true);
       showInfoPanel(selectedIndex);
       setSelectedItem(items[selectedIndex].config.id);
+
+      // Stop scroll inertia and smoothly bring the item to centre
+      translationVelocity = 0;
+      centeringTween?.kill();
+      centeringTween = gsap.to(pivotGroup.position, {
+        x: -items[selectedIndex].group.position.x,
+        duration: CENTER_TWEEN_DURATION,
+        ease: CENTER_TWEEN_EASE,
+      });
     } else {
       selectedIndex = null;
+      centeringTween?.kill();
+      centeringTween = null;
       hideInfoPanel();
       setSelectedItem(null);
     }
@@ -222,6 +238,7 @@ export function createInteractionController(
     container.removeEventListener('click', onClick);
     container.removeEventListener('wheel', onWheel);
     scaleTweens.forEach((t) => t?.kill());
+    centeringTween?.kill();
   };
 
   return { applyInertia, destroy };

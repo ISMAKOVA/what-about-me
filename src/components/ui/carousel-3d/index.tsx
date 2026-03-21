@@ -10,10 +10,9 @@ import { carouselStore } from '@/lib/stores/useCarouselStore';
 import {
   CANVAS_FADE_IN_TRANSITION,
   CYLINDER_RADIUS,
+  DESATURATE_CENTER_THRESHOLD,
+  DESATURATE_DIM,
   ITEM_HEIGHT_FRACTION,
-  OPACITY_ACTIVE,
-  OPACITY_CENTER_THRESHOLD,
-  OPACITY_DIM,
   SELF_ROTATION_SPEED,
 } from './config';
 import { createInfoPanel } from './info-panel';
@@ -23,7 +22,7 @@ import {
   loadCarouselItems,
   positionLabelElement,
   scaleGroupToWorldHeight,
-  setItemOpacity,
+  setItemSaturation,
 } from './items';
 import { createScene } from './scene';
 
@@ -115,17 +114,24 @@ export const Carousel3D: FC<Carousel3DProps> = ({ className }) => {
           item.group.rotation.y += SELF_ROTATION_SPEED;
         });
 
-        // Update label positions and opacity every frame
+        // Update label positions and desaturation every frame
         const w = container.clientWidth;
         const h = container.clientHeight;
         runtimeItems.forEach((item) => {
           item.group.getWorldPosition(worldPos);
           positionLabelElement(item.labelEl, worldPos, camera, w, h);
 
-          // Items near the screen centre are fully opaque; side items are dimmed
+          // Smooth desaturation: full colour at centre, fades to gray at edges
           const ndc = worldPos.clone().project(camera);
-          const opacity = Math.abs(ndc.x) < OPACITY_CENTER_THRESHOLD ? OPACITY_ACTIVE : OPACITY_DIM;
-          setItemOpacity(item, opacity);
+          const ndcAbsX = Math.abs(ndc.x);
+          const t = Math.max(
+            0,
+            (ndcAbsX - DESATURATE_CENTER_THRESHOLD) / (1 - DESATURATE_CENTER_THRESHOLD),
+          );
+          // Smooth-step for a softer gradient
+          const smooth = t * t * (3 - 2 * t);
+          const saturation = 1 - Math.min(1, smooth) * DESATURATE_DIM;
+          setItemSaturation(item, saturation);
         });
       }
 

@@ -15,6 +15,8 @@ export interface CarouselItemRuntime {
   labelEl: HTMLDivElement;
   /** Uniform scale after scaleGroupToWorldHeight(); used as the tween base. */
   baseScale: number;
+  /** Original material colours keyed by mesh uuid — used for desaturation lerp. */
+  originalColors: Map<string, THREE.Color[]>;
 }
 
 // ---------------------------------------------------------------------------
@@ -77,19 +79,25 @@ export function scaleGroupToWorldHeight(group: THREE.Group, targetHeight: number
 }
 
 // ---------------------------------------------------------------------------
-// Opacity helper
+// Desaturation helper
 // ---------------------------------------------------------------------------
 
+const GRAY = new THREE.Color(0.55, 0.55, 0.55);
+
 /**
- * Sets uniform opacity on every material in the item's mesh list.
- * Also toggles `transparent` so Three.js depth-sorts correctly.
+ * Lerps each material's colour between its original value and gray.
+ * saturation = 1 → full original colour; saturation = 0 → fully gray.
+ * Only affects materials that expose a `color` property (MeshStandard, etc.).
  */
-export function setItemOpacity(item: CarouselItemRuntime, opacity: number): void {
+export function setItemSaturation(item: CarouselItemRuntime, saturation: number): void {
   item.meshes.forEach((mesh) => {
     const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-    mats.forEach((mat) => {
-      mat.transparent = opacity < 1;
-      mat.opacity = opacity;
+    const origColors = item.originalColors.get(mesh.uuid) ?? [];
+    mats.forEach((mat, i) => {
+      if ('color' in mat && mat.color instanceof THREE.Color) {
+        const orig = origColors[i] ?? new THREE.Color(1, 1, 1);
+        (mat.color as THREE.Color).lerpColors(GRAY, orig, saturation);
+      }
     });
   });
 }
@@ -135,6 +143,20 @@ export async function loadCarouselItems(
                 }
               });
 
+              // Snapshot original material colours for desaturation lerp
+              const originalColors = new Map<string, THREE.Color[]>();
+              meshes.forEach((mesh) => {
+                const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+                originalColors.set(
+                  mesh.uuid,
+                  mats.map((m) =>
+                    'color' in m && m.color instanceof THREE.Color
+                      ? (m.color as THREE.Color).clone()
+                      : new THREE.Color(1, 1, 1),
+                  ),
+                );
+              });
+
               // Position on a flat horizontal track, centred around the origin
               const offset = ((configs.length - 1) / 2) * ITEM_SPACING;
               group.position.set(index * ITEM_SPACING - offset, 0, 0);
@@ -143,7 +165,7 @@ export async function loadCarouselItems(
 
               const labelEl = createLabelElement(config.label, container);
 
-              resolve({ config, group, meshes, labelEl, baseScale: 1 });
+              resolve({ config, group, meshes, labelEl, baseScale: 1, originalColors });
             },
             undefined,
             (error) => reject(error),

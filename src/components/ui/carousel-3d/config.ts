@@ -60,17 +60,27 @@ export const WHEEL_FACTOR = 0.004;
 export const SCROLL_DAMPING = 0.88;
 
 // -----------------------------------------------------------------------------
-// Opacity
+// Desaturation (replaces opacity dimming)
 // -----------------------------------------------------------------------------
 
-/** NDC X threshold (0–1) within which items are considered "centred". */
-export const OPACITY_CENTER_THRESHOLD = 0.3;
+/** NDC X threshold (0–1) within which items keep full colour. */
+export const DESATURATE_CENTER_THRESHOLD = 0.2;
 
-/** Opacity for items inside the centre threshold. */
-export const OPACITY_ACTIVE = 1;
+/**
+ * Maximum desaturation at screen edges (0 = no effect, 1 = fully gray).
+ * Applied as a smooth-step gradient beyond DESATURATE_CENTER_THRESHOLD.
+ */
+export const DESATURATE_DIM = 0.92;
 
-/** Opacity for items outside the centre threshold. */
-export const OPACITY_DIM = 0.6;
+// -----------------------------------------------------------------------------
+// Click-to-centre animation
+// -----------------------------------------------------------------------------
+
+/** Duration (seconds) for the tween that scrolls a clicked item to centre. */
+export const CENTER_TWEEN_DURATION = 0.7;
+
+/** Ease for the click-to-centre tween. */
+export const CENTER_TWEEN_EASE = 'power3.out';
 
 // -----------------------------------------------------------------------------
 // Camera

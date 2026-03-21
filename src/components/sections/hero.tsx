@@ -1,6 +1,8 @@
+'use client';
 import { MoveLeft, MoveRight } from 'lucide-react';
 
 import beats from '@/lib/beats';
+import { Carousel3D } from '../ui';
 import { TransitionLink } from '../ui/transition-link';
 
 export const Hero = () => {
@@ -29,12 +31,8 @@ export const Hero = () => {
           </ul>
         </div>
       </nav>
-      <div className="font-cabinet flex h-screen items-center justify-end">
-        <h1 className="title">
-          <>
-            <span>WHAT</span> <span>ABOUT</span> <span>ME?</span>
-          </>
-        </h1>
+      <div className="font-cabinet relative h-screen">
+        <Carousel3D className="absolute inset-0" />
       </div>
     </section>
   );

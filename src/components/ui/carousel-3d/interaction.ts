@@ -1,12 +1,17 @@
 import * as THREE from 'three';
 
-import { gsap } from '@/lib/gsap';
+import { esap } from '@/lib/gsap';';
+import { gsap } from '@/lib/gsap
 import { carouselStore } from '@/lib/stores/useCarouselStore';
 
 import {
   CENTER_TWEEN_DURATION,
   CENTER_TWEEN_EASE,
   HOVER_SCALE,
+  ITEM_HEIGHT_FRACTION,
+  MAGNETIC_MAX_OFFSET,
+  MAGNETIC_TWEEN_DURATION,
+  MAGNETIC_TWEEN_OUT_EASE,
   SCALE_IN_DURATION,
   SCALE_IN_EASE,
   SCALE_OUT_DURATION,
@@ -15,6 +20,7 @@ import {
   SELECT_SCALE,
   WHEEL_FACTOR,
 } from './config';
+import { InfoPanelElements } from './info-panel';
 import { CarouselItemRuntime } from './items';
 
 // ---------------------------------------------------------------------------
@@ -48,7 +54,7 @@ export function createInteractionController(
   allMeshes: THREE.Mesh[],
   meshToItemIndex: Map<string, number>,
   pivotGroup: THREE.Group,
-  infoPanel: HTMLDivElement,
+  infoPanel: InfoPanelElements,
 ): InteractionController {
   // Mutable imperative state — intentionally not React state
   let translationVelocity = 0;
@@ -56,6 +62,7 @@ export function createInteractionController(
   let selectedIndex: number | null = null;
 
   const scaleTweens: Array<gsap.core.Tween | null> = items.map(() => null);
+  const magneticTweens: Array<gsap.core.Tween | null> = items.map(() => null);
   let centeringTween: gsap.core.Tween | null = null;
   let isScrollingTracked = false;
 
@@ -89,19 +96,31 @@ export function createInteractionController(
     });
   }
 
+  /**
+   * Springs the magnetic offset of item[index] back to zero.
+   * Called on hover-leave so the item returns to its natural resting position.
+   */
+  function resetMagnetic(index: number): void {
+    magneticTweens[index]?.kill();
+    magneticTweens[index] = gsap.to(items[index].magneticOffset, {
+      x: 0,
+      y: 0,
+      duration: MAGNETIC_TWEEN_DURATION,
+      ease: MAGNETIC_TWEEN_OUT_EASE,
+    });
+  }
+
   function showInfoPanel(index: number): void {
-    infoPanel.innerHTML = `
-      <span style="font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;opacity:0.5;margin-bottom:0.5rem;">
-        ${items[index].config.label}
-      </span>
-    `;
-    infoPanel.style.opacity = '1';
-    infoPanel.style.pointerEvents = 'auto';
+    const { config } = items[index];
+    infoPanel.nameEl.textContent = config.label;
+    infoPanel.descriptionEl.textContent = config.description;
+    infoPanel.panel.style.opacity = '1';
+    infoPanel.panel.style.pointerEvents = 'auto';
   }
 
   function hideInfoPanel(): void {
-    infoPanel.style.opacity = '0';
-    infoPanel.style.pointerEvents = 'none';
+    infoPanel.panel.style.opacity = '0';
+    infoPanel.panel.style.pointerEvents = 'none';
   }
 
   // ---------------------------------------------------------------------------
@@ -112,10 +131,25 @@ export function createInteractionController(
     const rect = container.getBoundingClientRect();
     pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    mouseClientX = event.clientX;
+    mouseClientY = event.clientY;
   };
 
   const onMouseLeave = (): void => {
     pointer.set(9999, 9999);
+    mouseClientX = -9999;
+    mouseClientY = -9999;
+
+    // Clear magnetic offsets and cursor pill for any hovered item
+    if (hoveredIndex !== null) {
+      if (hoveredIndex !== selectedIndex) {
+        tweenScale(hoveredIndex, items[hoveredIndex].baseScale, false);
+      }
+      resetMagnetic(hoveredIndex);
+      hoveredIndex = null;
+      carouselStore.getState().setHoveredItem(null);
+      setCursorPill(null);
+    }
   };
 
   const onWheel = (event: WheelEvent): void => {
@@ -173,6 +207,10 @@ export function createInteractionController(
   // against the current frame's camera/mesh state.
   // ---------------------------------------------------------------------------
 
+  // Raw mouse position in CSS pixels (updated by onMouseMove)
+  let mouseClientX = -9999;
+  let mouseClientY = -9999;
+
   function updateHover(): void {
     raycaster.setFromCamera(pointer, camera);
     const intersects = raycaster.intersectObjects(allMeshes, false);
@@ -180,24 +218,79 @@ export function createInteractionController(
     const newHoveredIndex: number | null =
       intersects.length > 0 ? (meshToItemIndex.get(intersects[0].object.uuid) ?? null) : null;
 
-    if (newHoveredIndex === hoveredIndex) return;
+    if (newHoveredIndex !== hoveredIndex) {
+      // Animate previous hovered item back — unless it's selected
+      if (hoveredIndex !== null && hoveredIndex !== selectedIndex) {
+        tweenScale(hoveredIndex, items[hoveredIndex].baseScale, false);
+        resetMagnetic(hoveredIndex);
+      }
 
-    // Animate previous hovered item back — unless it's selected
-    if (hoveredIndex !== null && hoveredIndex !== selectedIndex) {
-      tweenScale(hoveredIndex, items[hoveredIndex].baseScale, false);
-      items[hoveredIndex].labelEl.style.opacity = '0';
+      // Animate newly hovered item — unless it's selected
+      if (newHoveredIndex !== null && newHoveredIndex !== selectedIndex) {
+        tweenScale(newHoveredIndex, items[newHoveredIndex].baseScale * HOVER_SCALE, true);
+      }
+
+      hoveredIndex = newHoveredIndex;
+      carouselStore
+        .getState()
+        .setHoveredItem(hoveredIndex !== null ? items[hoveredIndex].config.id : null);
+
+      // Update cursor pill text
+      setCursorPill(hoveredIndex !== null ? items[hoveredIndex].config.label : null);
     }
 
-    // Animate newly hovered item — unless it's selected
-    if (newHoveredIndex !== null && newHoveredIndex !== selectedIndex) {
-      tweenScale(newHoveredIndex, items[newHoveredIndex].baseScale * HOVER_SCALE, true);
-      items[newHoveredIndex].labelEl.style.opacity = '1';
+    // Continuous per-frame magnetic pull toward cursor while an item is hovered
+    if (hoveredIndex !== null) {
+      updateMagneticOffset(hoveredIndex);
     }
+  }
 
-    hoveredIndex = newHoveredIndex;
-    carouselStore
-      .getState()
-      .setHoveredItem(hoveredIndex !== null ? items[hoveredIndex].config.id : null);
+  /**
+   * Computes how far the cursor is from the hovered item's projected screen
+   * centre and maps that to a world-space XY offset, then directly sets the
+   * magneticOffset so it tracks the cursor smoothly (GSAP spring handles lag).
+   */
+  function updateMagneticOffset(index: number): void {
+    const rect = container.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
+
+    // Project item world position to CSS pixel space
+    const worldPos = new THREE.Vector3();
+    items[index].group.getWorldPosition(worldPos);
+    const ndc = worldPos.clone().project(camera);
+
+    const itemScreenX = rect.left + ((ndc.x + 1) / 2) * w;
+    const itemScreenY = rect.top + ((-ndc.y + 1) / 2) * h;
+
+    // Normalised delta: -1 to +1 across the container
+    const dx = (mouseClientX - itemScreenX) / (w * 0.5);
+    const dy = (mouseClientY - itemScreenY) / (h * 0.5);
+
+    // Clamp so the offset never exceeds MAGNETIC_MAX_OFFSET in world units
+    const clamp = (v: number) => Math.max(-1, Math.min(1, v));
+    const targetX = clamp(dx) * MAGNETIC_MAX_OFFSET;
+    // Invert Y: screen Y grows downward, world Y grows upward
+    const targetY = -clamp(dy) * MAGNETIC_MAX_OFFSET;
+
+    magneticTweens[index]?.kill();
+    magneticTweens[index] = gsap.to(items[index].magneticOffset, {
+      x: targetX,
+      y: targetY,
+      duration: 0.25,
+      ease: 'power2.out',
+      overwrite: true,
+    });
+
+    // Reposition the cursor sentinel so the pill orbits the item in screen space
+    const sentinelSize =
+      h * ITEM_HEIGHT_FRACTION * (items[index].group.scale.x / items[index].baseScale);
+    updatePillPosition(
+      itemScreenX - sentinelSize / 2,
+      itemScreenY - sentinelSize / 2,
+      sentinelSize,
+      sentinelSize,
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -238,7 +331,9 @@ export function createInteractionController(
     container.removeEventListener('click', onClick);
     container.removeEventListener('wheel', onWheel);
     scaleTweens.forEach((t) => t?.kill());
+    magneticTweens.forEach((t) => t?.kill());
     centeringTween?.kill();
+    setCursorPill(null);
   };
 
   return { applyInertia, destroy };

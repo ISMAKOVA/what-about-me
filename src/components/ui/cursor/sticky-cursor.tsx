@@ -53,7 +53,7 @@ export function StickyCursor() {
       const dx = mouseX.get() - nearest.x;
       const dy = mouseY.get() - nearest.y;
 
-      const magnet = stickyConfig?.magnet || 0.15;
+      const magnet = stickyConfig?.magnet ?? 0.15;
 
       smoothedX.set(nearest.x + dx * magnet - size / 2);
       smoothedY.set(nearest.y + dy * magnet - size / 2);

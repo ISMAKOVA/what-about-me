@@ -2,6 +2,8 @@
 import { MotionValue, useMotionValue } from 'framer-motion';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
+import { registerCursorBridge } from '@/lib/cursor-bridge';
+
 export type CursorState = {
   mouseX: MotionValue<number>;
   mouseY: MotionValue<number>;
@@ -35,17 +37,26 @@ export function CursorProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('mousemove', handle);
   }, [mouseX, mouseY]);
 
-  const setSticky = (el: HTMLElement | null, config: CursorState['stickyConfig'] = {}) => {
-    if (el) {
-      setMode('sticky');
-      setStickyRef(el);
-      setStickyConfig(config);
-    } else {
-      setMode('default');
-      setStickyRef(null);
-      setStickyConfig(null);
-    }
-  };
+  const setSticky = useCallback(
+    (el: HTMLElement | null, config: CursorState['stickyConfig'] = {}) => {
+      if (el) {
+        setMode('sticky');
+        setStickyRef(el);
+        setStickyConfig(config);
+      } else {
+        setMode('default');
+        setStickyRef(null);
+        setStickyConfig(null);
+      }
+    },
+    [],
+  );
+
+  // Register the imperative bridge so non-React code (e.g. Three.js carousel)
+  // can activate the cursor pill without React context access.
+  useEffect(() => {
+    registerCursorBridge(setSticky);
+  }, [setSticky]);
 
   const updateStickyConfig = useCallback((cfg: CursorState['stickyConfig']) => {
     setStickyConfig((prev) => {

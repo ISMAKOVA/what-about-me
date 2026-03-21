@@ -17,6 +17,12 @@ export interface CarouselItemRuntime {
   baseScale: number;
   /** Original material colours keyed by mesh uuid — used for desaturation lerp. */
   originalColors: Map<string, THREE.Color[]>;
+  /**
+   * Additional world-space XY displacement driven by the magnetic hover effect.
+   * The interaction controller tweens these values; the render loop applies
+   * them on top of the wrap/cylinder-arc position each frame.
+   */
+  magneticOffset: { x: number; y: number };
 }
 
 // ---------------------------------------------------------------------------
@@ -165,7 +171,15 @@ export async function loadCarouselItems(
 
               const labelEl = createLabelElement(config.label, container);
 
-              resolve({ config, group, meshes, labelEl, baseScale: 1, originalColors });
+              resolve({
+                config,
+                group,
+                meshes,
+                labelEl,
+                baseScale: 1,
+                originalColors,
+                magneticOffset: { x: 0, y: 0 },
+              });
             },
             undefined,
             (error) => reject(error),

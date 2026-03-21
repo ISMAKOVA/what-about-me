@@ -65,9 +65,9 @@ export const Carousel3D: FC<Carousel3DProps> = ({ className }) => {
     scene.add(pivotGroup);
 
     // ------------------------------------------------------------------
-    // Info panel
+    // Info panel — mounted on document.body so it layers above the canvas
     // ------------------------------------------------------------------
-    const infoPanel = createInfoPanel(container);
+    const infoPanel = createInfoPanel();
 
     // ------------------------------------------------------------------
     // Render loop — started immediately so the (empty) scene renders
@@ -95,6 +95,11 @@ export const Carousel3D: FC<Carousel3DProps> = ({ className }) => {
         const wrapThreshold = totalWidth / 2;
 
         runtimeItems.forEach((item) => {
+          // Strip the magnetic offset that was applied last frame so the wrap
+          // and cylinder-arc logic always operates on the logical base position.
+          item.group.position.x -= item.magneticOffset.x;
+          item.group.position.y -= item.magneticOffset.y;
+
           let worldX = pivotGroup.position.x + item.group.position.x;
 
           if (worldX > wrapThreshold) {
@@ -107,6 +112,12 @@ export const Carousel3D: FC<Carousel3DProps> = ({ className }) => {
 
           // Parabolic approximation of cylinder: edges closest, centre curves back
           item.group.position.z = -(worldX * worldX) / (2 * CYLINDER_RADIUS);
+
+          // Re-apply this frame's magnetic offset on top of the resolved base
+          // position. The offset is tweened by the interaction controller and
+          // does not interfere with the infinite-loop position bookkeeping.
+          item.group.position.x += item.magneticOffset.x;
+          item.group.position.y += item.magneticOffset.y;
         });
 
         // Self-rotation — each item spins on its own Y axis
@@ -262,8 +273,8 @@ export const Carousel3D: FC<Carousel3DProps> = ({ className }) => {
         }
       });
 
-      if (container.contains(infoPanel)) {
-        container.removeChild(infoPanel);
+      if (document.body.contains(infoPanel.panel)) {
+        document.body.removeChild(infoPanel.panel);
       }
 
       renderer.dispose();

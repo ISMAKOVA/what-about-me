@@ -121,14 +121,44 @@ export const FILL_LIGHT_POSITION = { x: -4, y: 2, z: -4 } as const;
 export const SCENE_BACKGROUND_COLOR = 0xffffff;
 
 // -----------------------------------------------------------------------------
+// Magnetic hover effect
+// -----------------------------------------------------------------------------
+
+/**
+ * Maximum world-unit displacement applied to a hovered item's position
+ * along X and Y as the cursor moves across it.
+ * Smaller = subtler pull.
+ */
+export const MAGNETIC_MAX_OFFSET = 0.45;
+
+/**
+ * Duration (seconds) for the tween that eases the magnetic offset in/out.
+ * Out-tween uses the same duration.
+ */
+export const MAGNETIC_TWEEN_DURATION = 0.6;
+
+/** Ease used when the magnetic offset animates back to zero on hover-leave. */
+export const MAGNETIC_TWEEN_OUT_EASE = 'elastic.out(1, 0.4)';
+
+/** Ease used when the magnetic offset follows the cursor on hover-enter. */
+export const MAGNETIC_TWEEN_IN_EASE = 'power2.out';
+
+// -----------------------------------------------------------------------------
 // Info panel
 // -----------------------------------------------------------------------------
 
-export const INFO_PANEL_WIDTH = '25%';
-export const INFO_PANEL_HEIGHT = '50%';
-export const INFO_PANEL_BACKGROUND = 'rgba(255, 255, 255, 0.12)';
-export const INFO_PANEL_BLUR = 'blur(16px)';
-export const INFO_PANEL_BORDER = '1px solid rgba(255,255,255,0.2)';
-export const INFO_PANEL_PADDING = '1.5rem';
+/** Horizontal margin from the left edge of the viewport (px). */
+export const INFO_PANEL_MARGIN_X = '2rem';
+/** Distance from the bottom of the viewport (px). */
+export const INFO_PANEL_MARGIN_BOTTOM = '2rem';
+/** Maximum width so the panel doesn't stretch on wide screens. */
+export const INFO_PANEL_MAX_WIDTH = '28rem';
+export const INFO_PANEL_BACKGROUND = 'rgba(255, 255, 255, 0.14)';
+export const INFO_PANEL_BLUR = 'blur(20px)';
+export const INFO_PANEL_BORDER = '1px solid rgba(255,255,255,0.25)';
+export const INFO_PANEL_PADDING = '1.25rem 1.5rem';
+export const INFO_PANEL_BORDER_RADIUS = '1rem';
 export const INFO_PANEL_COLOR = '#1a1a2e';
 export const INFO_PANEL_TRANSITION = 'opacity 0.4s ease';
+/** z-index — sits above the carousel canvas (which has no explicit z-index). */
+export const INFO_PANEL_Z_INDEX = '50';

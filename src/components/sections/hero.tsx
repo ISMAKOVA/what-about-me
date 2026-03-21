@@ -1,36 +1,18 @@
 'use client';
-import { MoveLeft, MoveRight } from 'lucide-react';
 
-import beats from '@/lib/beats';
 import { Carousel3D } from '../ui';
-import { TransitionLink } from '../ui/transition-link';
 
 export const Hero = () => {
   return (
     <section id="hero">
-      <nav>
-        <div className="font-cabinet absolute grid h-screen grid-rows-3 place-content-between gap-1">
-          <ul className="mt-6 ml-6 font-bold">
-            <li>
-              <TransitionLink href="/work">
-                <span>
-                  WORK <span className="text-tiny absolute top-2.5">({beats.length})</span>
-                </span>
-                <MoveRight />
-              </TransitionLink>
-            </li>
-          </ul>
+      {/* Logo — fixed at top-centre, always above the carousel */}
+      <div
+        className="font-cabinet fixed top-6 left-1/2 -translate-x-1/2 z-50
+                   text-sm font-black tracking-[0.1em] select-none pointer-events-none"
+      >
+        YODANIK
+      </div>
 
-          <ul className="row-start-3 mb-1 ml-6 flex self-end font-bold">
-            <li className="origin-top-left -rotate-90">
-              <TransitionLink href="/contact" className="flex justify-start gap-2">
-                <MoveLeft />
-                <span className="">CONTACT</span>
-              </TransitionLink>
-            </li>
-          </ul>
-        </div>
-      </nav>
       <div className="font-cabinet relative h-screen">
         <Carousel3D className="absolute inset-0" />
       </div>

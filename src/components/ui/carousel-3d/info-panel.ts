@@ -35,7 +35,8 @@ export function createInfoPanel(): InfoPanelElements {
   panel.style.maxWidth = INFO_PANEL_MAX_WIDTH;
   panel.style.background = INFO_PANEL_BACKGROUND;
   panel.style.backdropFilter = INFO_PANEL_BLUR;
-  panel.style.WebkitBackdropFilter = INFO_PANEL_BLUR;
+  (panel.style as CSSStyleDeclaration & { WebkitBackdropFilter: string }).WebkitBackdropFilter =
+    INFO_PANEL_BLUR;
   panel.style.border = INFO_PANEL_BORDER;
   panel.style.borderRadius = INFO_PANEL_BORDER_RADIUS;
   panel.style.padding = INFO_PANEL_PADDING;

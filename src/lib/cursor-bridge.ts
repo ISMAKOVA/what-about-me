@@ -37,6 +37,7 @@ export function registerCursorBridge(fn: SetStickyFn): void {
 let _sentinel: HTMLElement | null = null;
 
 function getSentinel(): HTMLElement {
+  if (typeof window === 'undefined') throw new Error('getSentinel called on server');
   if (!_sentinel) {
     _sentinel = document.createElement('div');
     _sentinel.style.position = 'fixed';

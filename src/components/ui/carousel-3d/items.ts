@@ -1,8 +1,6 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 import { CarouselItemConfig } from '@/lib/carousel-items';
-import { ITEM_SPACING } from './config';
 
 // ---------------------------------------------------------------------------
 // Runtime shape — what the interaction and render loop work with
@@ -23,6 +21,11 @@ export interface CarouselItemRuntime {
    * them on top of the wrap/cylinder-arc position each frame.
    */
   magneticOffset: { x: number; y: number };
+  /**
+   * Per-item phase offset (radians) used for the pendulum swing on image items
+   * so each one sways slightly out of sync with its neighbours.
+   */
+  swingPhase: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -51,14 +54,17 @@ export function createLabelElement(text: string, container: HTMLDivElement): HTM
   return el;
 }
 
+/**
+ * Positions a label element using pre-computed NDC coordinates.
+ * Caller is responsible for projecting world position to NDC before calling
+ * to avoid allocating a new Vector3 every frame.
+ */
 export function positionLabelElement(
   el: HTMLDivElement,
-  worldPos: THREE.Vector3,
-  camera: THREE.PerspectiveCamera,
+  ndc: THREE.Vector3,
   containerWidth: number,
   containerHeight: number,
 ): void {
-  const ndc = worldPos.clone().project(camera);
   const x = ((ndc.x + 1) / 2) * containerWidth;
   // +60 px vertical offset so the label sits below the object
   const y = ((-ndc.y + 1) / 2) * containerHeight + 60;
@@ -108,97 +114,4 @@ export function setItemSaturation(item: CarouselItemRuntime, saturation: number)
   });
 }
 
-// ---------------------------------------------------------------------------
-// GLTF loading
-// ---------------------------------------------------------------------------
-
 export { ITEM_SPACING } from './config';
-
-/**
- * Loads every config entry as a GLTF model, positions it on the carousel
- * circle, adds it to `pivotGroup`, and creates a label element in `container`.
- *
- * Returns a Promise that resolves once all models have loaded. Individual
- * failures are caught and logged — the item is skipped so the rest of the
- * carousel still works.
- */
-export async function loadCarouselItems(
-  configs: CarouselItemConfig[],
-  pivotGroup: THREE.Group,
-  container: HTMLDivElement,
-  loadingManager: THREE.LoadingManager,
-): Promise<CarouselItemRuntime[]> {
-  const loader = new GLTFLoader(loadingManager);
-
-  const settled = await Promise.allSettled(
-    configs.map(
-      (config, index): Promise<CarouselItemRuntime> =>
-        new Promise((resolve, reject) => {
-          loader.load(
-            config.modelPath,
-            (gltf) => {
-              const group = gltf.scene as THREE.Group;
-
-              // Collect all meshes for raycasting
-              const meshes: THREE.Mesh[] = [];
-              group.traverse((child) => {
-                if ((child as THREE.Mesh).isMesh) {
-                  meshes.push(child as THREE.Mesh);
-                  (child as THREE.Mesh).castShadow = true;
-                  (child as THREE.Mesh).receiveShadow = true;
-                }
-              });
-
-              // Snapshot original material colours for desaturation lerp
-              const originalColors = new Map<string, THREE.Color[]>();
-              meshes.forEach((mesh) => {
-                const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-                originalColors.set(
-                  mesh.uuid,
-                  mats.map((m) =>
-                    'color' in m && m.color instanceof THREE.Color
-                      ? (m.color as THREE.Color).clone()
-                      : new THREE.Color(1, 1, 1),
-                  ),
-                );
-              });
-
-              // Position on a flat horizontal track, centred around the origin
-              const offset = ((configs.length - 1) / 2) * ITEM_SPACING;
-              group.position.set(index * ITEM_SPACING - offset, 0, 0);
-
-              pivotGroup.add(group);
-
-              const labelEl = createLabelElement(config.label, container);
-
-              resolve({
-                config,
-                group,
-                meshes,
-                labelEl,
-                baseScale: 1,
-                originalColors,
-                magneticOffset: { x: 0, y: 0 },
-              });
-            },
-            undefined,
-            (error) => reject(error),
-          );
-        }),
-    ),
-  );
-
-  const items: CarouselItemRuntime[] = [];
-  settled.forEach((result, index) => {
-    if (result.status === 'fulfilled') {
-      items.push(result.value);
-    } else {
-      console.error(
-        `[Carousel3D] Failed to load model "${configs[index].modelPath}":`,
-        result.reason,
-      );
-    }
-  });
-
-  return items;
-}

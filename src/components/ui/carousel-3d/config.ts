@@ -49,6 +49,11 @@ export const SCALE_OUT_EASE = 'power2.out';
 /** Radians added to each item's Y rotation per animation frame (~60 fps). */
 export const SELF_ROTATION_SPEED = 0.004;
 
+/** Peak swing angle (radians) for image-type items — left/right pendulum (rotation.y). */
+export const IMAGE_SWING_AMPLITUDE = 0.18;
+/** Angular frequency of the image swing (radians per frame). */
+export const IMAGE_SWING_SPEED = 0.018;
+
 // -----------------------------------------------------------------------------
 // Scroll / inertia
 // -----------------------------------------------------------------------------
@@ -98,27 +103,17 @@ export const CAMERA_POSITION = { x: 0, y: 2.5, z: 10 } as const;
 /** Caps `window.devicePixelRatio` to avoid excessive GPU load on HiDPI screens. */
 export const MAX_PIXEL_RATIO = 2;
 
-/** CSS transition applied to the canvas while models are loading. */
-export const CANVAS_FADE_IN_TRANSITION = 'opacity 0.6s ease';
-
 // -----------------------------------------------------------------------------
 // Lights
 // -----------------------------------------------------------------------------
 
-export const AMBIENT_LIGHT_INTENSITY = 0.6;
+export const AMBIENT_LIGHT_INTENSITY = 1.3;
 
 export const DIR_LIGHT_INTENSITY = 1.4;
 export const DIR_LIGHT_POSITION = { x: 5, y: 8, z: 6 } as const;
 
 export const FILL_LIGHT_INTENSITY = 0.4;
 export const FILL_LIGHT_POSITION = { x: -4, y: 2, z: -4 } as const;
-
-// -----------------------------------------------------------------------------
-// Scene
-// -----------------------------------------------------------------------------
-
-/** Three.js hex colour for the scene background. */
-export const SCENE_BACKGROUND_COLOR = 0xffffff;
 
 // -----------------------------------------------------------------------------
 // Magnetic hover effect
@@ -139,9 +134,6 @@ export const MAGNETIC_TWEEN_DURATION = 0.6;
 
 /** Ease used when the magnetic offset animates back to zero on hover-leave. */
 export const MAGNETIC_TWEEN_OUT_EASE = 'elastic.out(1, 0.4)';
-
-/** Ease used when the magnetic offset follows the cursor on hover-enter. */
-export const MAGNETIC_TWEEN_IN_EASE = 'power2.out';
 
 // -----------------------------------------------------------------------------
 // Info panel

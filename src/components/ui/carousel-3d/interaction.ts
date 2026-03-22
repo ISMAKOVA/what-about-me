@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
-import { esap } from '@/lib/gsap';';
-import { gsap } from '@/lib/gsap
+import { setCursorPill, updatePillPosition } from '@/lib/cursor-bridge';
+import { gsap } from '@/lib/gsap';
 import { carouselStore } from '@/lib/stores/useCarouselStore';
 
 import {
@@ -69,6 +69,8 @@ export function createInteractionController(
   const raycaster = new THREE.Raycaster();
   // Start pointer far off-screen so nothing is hovered on mount
   const pointer = new THREE.Vector2(9999, 9999);
+  // Scratch objects reused every frame to avoid per-frame allocations
+  const _worldPos = new THREE.Vector3();
 
   // ---------------------------------------------------------------------------
   // Helpers
@@ -255,13 +257,12 @@ export function createInteractionController(
     const w = rect.width;
     const h = rect.height;
 
-    // Project item world position to CSS pixel space
-    const worldPos = new THREE.Vector3();
-    items[index].group.getWorldPosition(worldPos);
-    const ndc = worldPos.clone().project(camera);
+    // Project item world position to NDC in-place — no allocation
+    items[index].group.getWorldPosition(_worldPos);
+    _worldPos.project(camera);
 
-    const itemScreenX = rect.left + ((ndc.x + 1) / 2) * w;
-    const itemScreenY = rect.top + ((-ndc.y + 1) / 2) * h;
+    const itemScreenX = rect.left + ((_worldPos.x + 1) / 2) * w;
+    const itemScreenY = rect.top + ((-_worldPos.y + 1) / 2) * h;
 
     // Normalised delta: -1 to +1 across the container
     const dx = (mouseClientX - itemScreenX) / (w * 0.5);

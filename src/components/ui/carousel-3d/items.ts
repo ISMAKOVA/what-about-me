@@ -1,32 +1,7 @@
 import * as THREE from 'three';
 
-import { CarouselItemConfig } from '@/lib/carousel-items';
-
-// ---------------------------------------------------------------------------
-// Runtime shape — what the interaction and render loop work with
-// ---------------------------------------------------------------------------
-
-export interface CarouselItemRuntime {
-  config: CarouselItemConfig;
-  group: THREE.Group;
-  meshes: THREE.Mesh[];
-  labelEl: HTMLDivElement;
-  /** Uniform scale after scaleGroupToWorldHeight(); used as the tween base. */
-  baseScale: number;
-  /** Original material colours keyed by mesh uuid — used for desaturation lerp. */
-  originalColors: Map<string, THREE.Color[]>;
-  /**
-   * Additional world-space XY displacement driven by the magnetic hover effect.
-   * The interaction controller tweens these values; the render loop applies
-   * them on top of the wrap/cylinder-arc position each frame.
-   */
-  magneticOffset: { x: number; y: number };
-  /**
-   * Per-item phase offset (radians) used for the pendulum swing on image items
-   * so each one sways slightly out of sync with its neighbours.
-   */
-  swingPhase: number;
-}
+import { GRAY } from './config';
+import type { CarouselItemRuntime } from './types';
 
 // ---------------------------------------------------------------------------
 // Label DOM helpers
@@ -94,8 +69,6 @@ export function scaleGroupToWorldHeight(group: THREE.Group, targetHeight: number
 // Desaturation helper
 // ---------------------------------------------------------------------------
 
-const GRAY = new THREE.Color(0.55, 0.55, 0.55);
-
 /**
  * Lerps each material's colour between its original value and gray.
  * saturation = 1 → full original colour; saturation = 0 → fully gray.
@@ -114,4 +87,3 @@ export function setItemSaturation(item: CarouselItemRuntime, saturation: number)
   });
 }
 
-export { ITEM_SPACING } from './config';

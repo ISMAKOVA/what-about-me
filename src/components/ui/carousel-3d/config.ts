@@ -3,15 +3,58 @@
 // Edit values here; nothing else needs to change.
 // =============================================================================
 
+import * as THREE from 'three';
+
+import type { CarouselItemConfig } from './types';
+
+// -----------------------------------------------------------------------------
+// Items
+// -----------------------------------------------------------------------------
+
+export const CAROUSEL_ITEMS: CarouselItemConfig[] = [
+  {
+    id: 'image of disk',
+    label: 'Sphere',
+    description: 'A perfect geometric form — infinite symmetry in every direction.',
+    imagePath: '/images/sample_pack.png',
+    scale: 0.8,
+  },
+  {
+    id: 'image of disk',
+    label: 'Sphere',
+    description: 'A perfect geometric form — infinite symmetry in every direction.',
+    imagePath: '/images/sample_pack.png',
+    scale: 0.8,
+  },
+  {
+    id: 'image of disk',
+    label: 'Sphere',
+    description: 'A perfect geometric form — infinite symmetry in every direction.',
+    imagePath: '/images/sample_pack.png',
+    scale: 0.8,
+  },
+  {
+    id: 'image of disk',
+    label: 'Sphere',
+    description: 'A perfect geometric form — infinite symmetry in every direction.',
+    imagePath: '/images/sample_pack.png',
+    scale: 0.8,
+  },
+  {
+    id: 'image of disk',
+    label: 'Sphere',
+    description: 'A perfect geometric form — infinite symmetry in every direction.',
+    imagePath: '/images/sample_pack.png',
+    scale: 0.8,
+  },
+];
+
 // -----------------------------------------------------------------------------
 // Layout
 // -----------------------------------------------------------------------------
 
-/** Radius of the virtual cylinder items arc around (world units). Larger = flatter curve. */
-export const CYLINDER_RADIUS = 15;
-
-/** Horizontal gap between item centres in world units. */
-export const ITEM_SPACING = 4;
+/** Radius of the circle items sit on in the XZ plane (world units). */
+export const CIRCLE_RADIUS = 5.5;
 
 /** Fraction of screen height each item occupies (0–1). */
 export const ITEM_HEIGHT_FRACTION = 0.25;
@@ -58,8 +101,8 @@ export const IMAGE_SWING_SPEED = 0.018;
 // Scroll / inertia
 // -----------------------------------------------------------------------------
 
-/** Scales raw `WheelEvent.deltaY` into translation velocity. */
-export const WHEEL_FACTOR = 0.004;
+/** Scales raw `WheelEvent.deltaY` into rotation velocity (radians). */
+export const WHEEL_FACTOR = 0.002;
 
 /** Velocity multiplier applied each frame (0–1); lower = snappier stop. */
 export const SCROLL_DAMPING = 0.88;
@@ -94,7 +137,7 @@ export const CENTER_TWEEN_EASE = 'power3.out';
 export const CAMERA_FOV = 50;
 export const CAMERA_NEAR = 0.1;
 export const CAMERA_FAR = 100;
-export const CAMERA_POSITION = { x: 0, y: 2.5, z: 10 } as const;
+export const CAMERA_POSITION = { x: 0, y: -0.5, z: 10 } as const;
 
 // -----------------------------------------------------------------------------
 // Renderer
@@ -107,13 +150,18 @@ export const MAX_PIXEL_RATIO = 2;
 // Lights
 // -----------------------------------------------------------------------------
 
-export const AMBIENT_LIGHT_INTENSITY = 1.3;
+export const AMBIENT_LIGHT_INTENSITY = 0.3;
+export const AMBIENT_LIGHT_COLOR = '#ffffff';
 
-export const DIR_LIGHT_INTENSITY = 1.4;
-export const DIR_LIGHT_POSITION = { x: 5, y: 8, z: 6 } as const;
+export const DIR_LIGHT_INTENSITY = 1.2;
+export const DIR_LIGHT_COLOR = '#ffffff';
+export const DIR_LIGHT_POSITION = { x: 3, y: 5, z: 2 } as const;
 
-export const FILL_LIGHT_INTENSITY = 0.4;
-export const FILL_LIGHT_POSITION = { x: -4, y: 2, z: -4 } as const;
+export const FILL_LIGHT_INTENSITY = 0.3;
+export const FILL_LIGHT_POSITION = { x: -3, y: 2, z: -2 } as const;
+
+export const ACCENT_POINT_LIGHT_INTENSITY = 0.4;
+export const ACCENT_POINT_LIGHT_COLOR = '#ffffff';
 
 // -----------------------------------------------------------------------------
 // Magnetic hover effect
@@ -124,7 +172,7 @@ export const FILL_LIGHT_POSITION = { x: -4, y: 2, z: -4 } as const;
  * along X and Y as the cursor moves across it.
  * Smaller = subtler pull.
  */
-export const MAGNETIC_MAX_OFFSET = 0.45;
+export const MAGNETIC_MAX_OFFSET = 0.65;
 
 /**
  * Duration (seconds) for the tween that eases the magnetic offset in/out.
@@ -154,3 +202,10 @@ export const INFO_PANEL_COLOR = '#1a1a2e';
 export const INFO_PANEL_TRANSITION = 'opacity 0.4s ease';
 /** z-index — sits above the carousel canvas (which has no explicit z-index). */
 export const INFO_PANEL_Z_INDEX = '50';
+
+// -----------------------------------------------------------------------------
+// Desaturation colour
+// -----------------------------------------------------------------------------
+
+/** Target colour for fully desaturated items — used in the saturation lerp. */
+export const GRAY = new THREE.Color(0.55, 0.55, 0.55);

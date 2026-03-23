@@ -5,33 +5,8 @@ import { MeshTransmissionMaterial, useGLTF, useTexture } from '@react-three/drei
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
-import { CAROUSEL_ITEMS, CarouselItemConfig } from '@/lib/carousel-items';
-import { ITEM_SPACING } from './config';
-
-// ---------------------------------------------------------------------------
-// Glass control props (driven by leva in scene.tsx)
-// ---------------------------------------------------------------------------
-
-export interface GlassProps {
-  thickness: number;
-  roughness: number;
-  transmission: number;
-  ior: number;
-  chromaticAbberation: number;
-  backside: boolean;
-}
-
-// ---------------------------------------------------------------------------
-// Shared props for all item variants
-// ---------------------------------------------------------------------------
-
-interface ItemProps {
-  config: CarouselItemConfig;
-  index: number;
-  totalCount: number;
-  glassProps: GlassProps;
-  onRegister: (meshes: THREE.Mesh[], group: THREE.Group) => void;
-}
+import { CAROUSEL_ITEMS } from './config';
+import type { GlassProps, ItemProps } from './types';
 
 // ---------------------------------------------------------------------------
 // Helper — collect meshes from a GLTF scene, with transforms resolved
@@ -100,10 +75,8 @@ function GlbGlassItem({ config, index, totalCount, glassProps, onRegister }: Ite
     };
   }, [meshData]);
 
-  const x = (index - (totalCount - 1) / 2) * ITEM_SPACING;
-
   return (
-    <group ref={groupRef} position={[x, 0, 0]}>
+    <group ref={groupRef} position={[0, 0, 0]}>
       {meshData.map((md, i) => (
         <mesh
           key={md.uuid}
@@ -175,10 +148,8 @@ function GlbItem({ config, index, totalCount, onRegister }: Omit<ItemProps, 'gla
     };
   }, [clonedScene]);
 
-  const x = (index - (totalCount - 1) / 2) * ITEM_SPACING;
-
   return (
-    <group ref={groupRef} position={[x, 0, 0]}>
+    <group ref={groupRef} position={[0, 0, 0]}>
       <primitive object={clonedScene} />
     </group>
   );
@@ -210,10 +181,8 @@ function ImageItem({ config, index, totalCount, onRegister }: Omit<ItemProps, 'g
     };
   }, [texture]);
 
-  const x = (index - (totalCount - 1) / 2) * ITEM_SPACING;
-
   return (
-    <group ref={groupRef} position={[x, 0, 0]}>
+    <group ref={groupRef} position={[0, 0, 0]}>
       <mesh ref={meshRef} castShadow receiveShadow>
         <planeGeometry args={[aspect, 1]} />
         <meshBasicMaterial map={texture} side={THREE.DoubleSide} transparent />

@@ -4,12 +4,12 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { useCallback, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
-import { CAROUSEL_ITEMS } from '@/lib/carousel-items';
+import { CAROUSEL_ITEMS } from './config';
 import { ensureGsapPlugins } from '@/lib/gsap';
 import { carouselStore } from '@/lib/stores/useCarouselStore';
 
 import {
-  CYLINDER_RADIUS,
+  CIRCLE_RADIUS,
   DESATURATE_CENTER_THRESHOLD,
   DESATURATE_DIM,
   IMAGE_SWING_AMPLITUDE,
@@ -17,16 +17,15 @@ import {
   ITEM_HEIGHT_FRACTION,
   SELF_ROTATION_SPEED,
 } from './config';
-import { createInfoPanel, InfoPanelElements } from './info-panel';
-import { createInteractionController, InteractionController } from './interaction';
+import { createInfoPanel } from './info-panel';
+import { createInteractionController } from './interaction';
 import {
-  CarouselItemRuntime,
   createLabelElement,
-  ITEM_SPACING,
   positionLabelElement,
   scaleGroupToWorldHeight,
   setItemSaturation,
 } from './items';
+import type { CarouselItemRuntime, InfoPanelElements, InteractionController } from './types';
 
 // ---------------------------------------------------------------------------
 // Hook
@@ -92,6 +91,8 @@ export function useCarousel() {
         originalColors,
         magneticOffset: { x: 0, y: 0 },
         swingPhase: config.imagePath ? index * (Math.PI / 3) : 0,
+        baseAngle: 0,
+        spinAngle: 0,
       };
 
       registeredCount.current++;
@@ -126,6 +127,14 @@ export function useCarousel() {
       }
       item.baseScale = item.group.scale.x;
     });
+
+    const total = items.length;
+    items.forEach((item, i) => {
+      item.baseAngle = (i / total) * Math.PI * 2;
+      item.spinAngle = 0;
+      item.group.userData.baseAngle = item.baseAngle;
+    });
+    pivotRef.current.userData.rotationAngle = 0;
 
     // Build flat mesh list + lookup map for raycasting
     const allMeshes = items.flatMap((item) => item.meshes);
@@ -173,62 +182,43 @@ export function useCarousel() {
 
     const container = gl.domElement.parentElement as HTMLDivElement;
 
-    // Inertia + hover raycasting (interaction controller drives scroll velocity)
+    // Inertia + hover raycasting (interaction controller drives rotation velocity)
     interactionRef.current.applyInertia();
 
-    // Infinite loop + cylinder arc
-    const totalWidth = items.length * ITEM_SPACING;
-    const wrapThreshold = totalWidth / 2;
-
-    items.forEach((item) => {
-      // Strip magnetic offset before wrap/arc math
-      item.group.position.x -= item.magneticOffset.x;
-      item.group.position.y -= item.magneticOffset.y;
-
-      let worldX = pivotRef.current!.position.x + item.group.position.x;
-
-      if (worldX > wrapThreshold) {
-        item.group.position.x -= totalWidth;
-        worldX -= totalWidth;
-      } else if (worldX < -wrapThreshold) {
-        item.group.position.x += totalWidth;
-        worldX += totalWidth;
-      }
-
-      // Parabolic cylinder arc: edges curve away from the camera
-      item.group.position.z = -(worldX * worldX) / (2 * CYLINDER_RADIUS);
-
-      // Re-apply magnetic offset on top of resolved position
-      item.group.position.x += item.magneticOffset.x;
-      item.group.position.y += item.magneticOffset.y;
-    });
-
-    // Self-rotation: 3D models spin on Y; image items gently swing (pendulum)
-    items.forEach((item) => {
-      if (item.config.imagePath) {
-        item.group.rotation.y =
-          Math.sin(frameRef.current * IMAGE_SWING_SPEED + item.swingPhase) * IMAGE_SWING_AMPLITUDE;
-      } else {
-        item.group.rotation.y += SELF_ROTATION_SPEED;
-      }
-    });
+    const rotationAngle: number = pivotRef.current!.userData.rotationAngle ?? 0;
 
     frameRef.current++;
 
-    // Label positions + desaturation
+    // Circle layout: position, rotation, label, and desaturation in one pass
     const w = container.clientWidth;
     const h = container.clientHeight;
 
     items.forEach((item) => {
+      const currentAngle = item.baseAngle + rotationAngle;
+
+      item.group.position.x = Math.sin(currentAngle) * CIRCLE_RADIUS + item.magneticOffset.x;
+      item.group.position.y = item.magneticOffset.y;
+      item.group.position.z = Math.cos(currentAngle) * CIRCLE_RADIUS;
+
+      if (item.config.imagePath) {
+        item.group.rotation.y =
+          -currentAngle +
+          Math.sin(frameRef.current * IMAGE_SWING_SPEED + item.swingPhase) * IMAGE_SWING_AMPLITUDE;
+      } else {
+        item.spinAngle += SELF_ROTATION_SPEED;
+        item.group.rotation.y = -currentAngle + item.spinAngle;
+      }
+
       item.group.getWorldPosition(worldPosRef.current);
-      // Project once into scratch ref — no per-frame allocation
       ndcRef.current.copy(worldPosRef.current).project(camera);
       positionLabelElement(item.labelEl, ndcRef.current, w, h);
 
-      const ndcAbsX = Math.abs(ndcRef.current.x);
+      let norm = ((currentAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      if (norm > Math.PI) norm -= 2 * Math.PI;
+      const distFromFront = Math.abs(norm) / Math.PI;
       const t = Math.max(
         0,
-        (ndcAbsX - DESATURATE_CENTER_THRESHOLD) / (1 - DESATURATE_CENTER_THRESHOLD),
+        (distFromFront - DESATURATE_CENTER_THRESHOLD) / (1 - DESATURATE_CENTER_THRESHOLD),
       );
       const smooth = t * t * (3 - 2 * t);
       const saturation = 1 - Math.min(1, smooth) * DESATURATE_DIM;

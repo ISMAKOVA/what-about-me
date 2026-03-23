@@ -20,22 +20,7 @@ import {
   SELECT_SCALE,
   WHEEL_FACTOR,
 } from './config';
-import { InfoPanelElements } from './info-panel';
-import { CarouselItemRuntime } from './items';
-
-// ---------------------------------------------------------------------------
-// Public interface
-// ---------------------------------------------------------------------------
-
-export interface InteractionController {
-  /**
-   * Called once per animation frame by the render loop.
-   * Applies wheel inertia to `pivotGroup.rotation.y` and runs hover raycasting.
-   */
-  applyInertia: () => void;
-  /** Tears down all event listeners and kills in-flight tweens. */
-  destroy: () => void;
-}
+import type { CarouselItemRuntime, InfoPanelElements, InteractionController } from './types';
 
 // ---------------------------------------------------------------------------
 // Factory
@@ -57,7 +42,7 @@ export function createInteractionController(
   infoPanel: InfoPanelElements,
 ): InteractionController {
   // Mutable imperative state — intentionally not React state
-  let translationVelocity = 0;
+  let rotationVelocity = 0;
   let hoveredIndex: number | null = null;
   let selectedIndex: number | null = null;
 
@@ -141,6 +126,7 @@ export function createInteractionController(
     pointer.set(9999, 9999);
     mouseClientX = -9999;
     mouseClientY = -9999;
+    container.style.cursor = '';
 
     // Clear magnetic offsets and cursor pill for any hovered item
     if (hoveredIndex !== null) {
@@ -158,7 +144,7 @@ export function createInteractionController(
     event.preventDefault();
     // Wheel is blocked while an item is selected
     if (selectedIndex !== null) return;
-    translationVelocity += event.deltaY * WHEEL_FACTOR;
+    rotationVelocity += event.deltaY * WHEEL_FACTOR;
   };
 
   const onClick = (event: MouseEvent): void => {
@@ -187,11 +173,17 @@ export function createInteractionController(
       showInfoPanel(selectedIndex);
       setSelectedItem(items[selectedIndex].config.id);
 
-      // Stop scroll inertia and smoothly bring the item to centre
-      translationVelocity = 0;
+      // Stop scroll inertia and smoothly rotate the clicked item to the front
+      rotationVelocity = 0;
       centeringTween?.kill();
-      centeringTween = gsap.to(pivotGroup.position, {
-        x: -items[selectedIndex].group.position.x,
+      const baseAngle = items[selectedIndex].group.userData.baseAngle as number ?? 0;
+      const currentRotation: number = pivotGroup.userData.rotationAngle ?? 0;
+      let delta = (-baseAngle - currentRotation) % (2 * Math.PI);
+      if (delta > Math.PI) delta -= 2 * Math.PI;
+      if (delta < -Math.PI) delta += 2 * Math.PI;
+      const targetRotation = currentRotation + delta;
+      centeringTween = gsap.to(pivotGroup.userData, {
+        rotationAngle: targetRotation,
         duration: CENTER_TWEEN_DURATION,
         ease: CENTER_TWEEN_EASE,
       });
@@ -231,6 +223,9 @@ export function createInteractionController(
       if (newHoveredIndex !== null && newHoveredIndex !== selectedIndex) {
         tweenScale(newHoveredIndex, items[newHoveredIndex].baseScale * HOVER_SCALE, true);
       }
+
+      // Update native cursor so all items feel clickable
+      container.style.cursor = newHoveredIndex !== null ? 'pointer' : '';
 
       hoveredIndex = newHoveredIndex;
       carouselStore
@@ -300,13 +295,12 @@ export function createInteractionController(
 
   const applyInertia = (): void => {
     updateHover();
-    // Scroll down → positive deltaY → move group left so next item slides in from the right
-    pivotGroup.position.x -= translationVelocity;
-    translationVelocity *= SCROLL_DAMPING;
+    pivotGroup.userData.rotationAngle = (pivotGroup.userData.rotationAngle ?? 0) - rotationVelocity;
+    rotationVelocity *= SCROLL_DAMPING;
 
     // Sync scrolling state to the store — only when the boolean flips to avoid
     // calling setScrolling on every frame while the carousel is idle.
-    const nowScrolling = Math.abs(translationVelocity) > 0.001;
+    const nowScrolling = Math.abs(rotationVelocity) > 0.0001;
     if (nowScrolling !== isScrollingTracked) {
       isScrollingTracked = nowScrolling;
       carouselStore.getState().setScrolling(nowScrolling);
@@ -331,6 +325,7 @@ export function createInteractionController(
     container.removeEventListener('mouseleave', onMouseLeave);
     container.removeEventListener('click', onClick);
     container.removeEventListener('wheel', onWheel);
+    container.style.cursor = '';
     scaleTweens.forEach((t) => t?.kill());
     magneticTweens.forEach((t) => t?.kill());
     centeringTween?.kill();

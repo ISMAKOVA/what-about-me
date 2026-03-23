@@ -19,12 +19,7 @@ import {
   INFO_PANEL_TRANSITION,
   INFO_PANEL_Z_INDEX,
 } from './config';
-
-export interface InfoPanelElements {
-  panel: HTMLDivElement;
-  nameEl: HTMLParagraphElement;
-  descriptionEl: HTMLParagraphElement;
-}
+import type { InfoPanelElements } from './types';
 
 export function createInfoPanel(): InfoPanelElements {
   const panel = document.createElement('div');

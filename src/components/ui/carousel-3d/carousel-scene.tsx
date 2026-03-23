@@ -3,13 +3,10 @@
 import { Suspense, useMemo } from 'react';
 import * as THREE from 'three';
 
-import { CAROUSEL_ITEMS } from '@/lib/carousel-items';
-import CarouselItem, { GlassProps } from './carousel-item';
+import CarouselItem from './carousel-item';
+import { CAROUSEL_ITEMS } from './config';
+import type { CarouselSceneProps } from './types';
 import { useCarousel } from './use-carousel';
-
-interface CarouselSceneProps {
-  glassProps: GlassProps;
-}
 
 export default function CarouselScene({ glassProps }: CarouselSceneProps) {
   const { pivotRef, registerMeshes } = useCarousel();

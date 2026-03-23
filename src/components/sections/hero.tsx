@@ -1,6 +1,6 @@
 'use client';
 
-import { Carousel3D } from '../ui';
+import { Carousel3D, StudioEnvironment } from '../ui';
 
 export const Hero = () => {
   return (
@@ -14,6 +14,7 @@ export const Hero = () => {
       </div>
 
       <div className="font-cabinet relative h-screen">
+        <StudioEnvironment lightOrigin="top-left" className="absolute inset-0" />
         <Carousel3D className="absolute inset-0" />
       </div>
     </section>

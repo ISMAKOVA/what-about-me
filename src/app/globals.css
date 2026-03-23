@@ -64,3 +64,15 @@ body {
     }
   }
 }
+
+.studio-light-layer {
+  animation: studioLightDrift 40s ease-in-out infinite alternate;
+  will-change: opacity, transform;
+}
+
+@keyframes studioLightDrift {
+  0%   { opacity: 0.75; transform: translate(0%, 0%) scale(1); }
+  33%  { opacity: 0.9;  transform: translate(2%, -1%) scale(1.03); }
+  66%  { opacity: 0.7;  transform: translate(-1%, 1%) scale(0.98); }
+  100% { opacity: 0.8;  transform: translate(1.5%, -0.5%) scale(1.01); }
+}

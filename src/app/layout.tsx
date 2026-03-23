@@ -1,6 +1,5 @@
-import { useGSAP } from '@gsap/react';
-import gsap from 'gsap';
-import { ScrollTrigger, SplitText } from 'gsap/all';
+import { CursorProvider, StickyCursor } from '@/components/ui/cursor';
+import GsapProvider from '@/providers/GsapProvider';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { ReactNode } from 'react';
@@ -35,8 +34,6 @@ export const metadata: Metadata = {
   description: '',
 };
 
-gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -44,7 +41,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${cabinet.variable} ${satoshi.variable} antialiased`}>{children}</body>
+      <body className={`${cabinet.variable} ${satoshi.variable} antialiased`}>
+        <GsapProvider>
+          <CursorProvider>
+            {children}
+            <StickyCursor />
+          </CursorProvider>
+        </GsapProvider>
+      </body>
     </html>
   );
 }

@@ -1,7 +1,11 @@
 export type Beat = {
-  name: string;
-  type: string;
-  youtubeUrl: string;
-  image: string;
+  id: string;
+  title: string;
   bpm: number;
+  youtubeUrl?: string;
+  image?: string;
+  type: string;
+  previewUrl: string; // public preview mp3 path
+  tags?: string[];
+  price?: number; // USD
 };

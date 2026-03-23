@@ -22,8 +22,8 @@ export const Navbar = ({ className, children, items }: PropsWithChildren<Props>)
   const filteredPages = source.filter((page) => page.link !== pathname);
 
   return (
-    <nav className={cn('fixed  h-12 w-screen font-cabinet p-4 z-10', className)}>
-      <ul className="grid grid-cols-4 font-bold items-center">
+    <nav className={cn('fixed h-12 w-full font-cabinet p-4 z-10', className)}>
+      <ul className="grid grid-cols-5 font-bold items-center gap-20">
         {filteredPages.map((page, index) => (
           <li key={index} className={`col-start-${index === 0 ? 0 : index + 1}`}>
             <TransitionLink href={page.link} className="flex justify-start gap-2" underline>

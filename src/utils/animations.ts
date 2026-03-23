@@ -1,5 +1,4 @@
-/* eslint-disable no-undef */
-import { gsap } from 'gsap';
+import { gsap } from '@/lib/gsap';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 export const animatePageIn = () => {
